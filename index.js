@@ -543,4 +543,29 @@ app.post("/process", async (req, res) => {
     }
 });
 
+
+app.post("/echo", async (req, res) => {
+    try {
+        // Extract the accessToken and the actual site data
+        const { accessToken, ...data } = req.body;
+        if (!accessToken) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        // Verify the token first
+        jwt.verify(accessToken, SECRET_KEY, async (err, decoded) => {
+            if (err) {
+                return res.status(403).json({ error: "Invalid token" });
+            }
+            req.user = decoded; // attach user info if needed
+        
+            // 6. Return the merged single cohesive object.
+            res.json(req);
+        });
+    } catch (error) {
+        console.error("Error in /echo:", error);
+        res.status(500).json({ error: error });
+    }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
